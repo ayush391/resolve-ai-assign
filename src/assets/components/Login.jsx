@@ -1,8 +1,7 @@
-import { async } from '@firebase/util';
 import { Button, Snackbar, TextField } from '@mui/material'
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react'
-import { app } from '../../../firebase';
+import app from '../../firebase';
 
 
 const Login = () => {
