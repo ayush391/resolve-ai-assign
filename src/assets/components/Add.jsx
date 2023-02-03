@@ -1,12 +1,18 @@
 import { Box, Button, FormControl, Input, InputLabel, MenuItem, Select, Snackbar, TextField } from '@mui/material'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react'
-import app from '../../firebase';
+import { app, db } from '../../firebase';
+
+const DB_URL = 'https://resolve-ai-assign-default-rtdb.asia-southeast1.firebasedatabase.app/students'
 
 
 const Add = () => {
 
-    const auth = getAuth(app);
+    // const auth = getAuth(app);
+
+
+
     const [user, setUser] = useState({
         first: '',
         middle: '',
@@ -27,19 +33,18 @@ const Add = () => {
         message: ''
     })
 
-    // const handleEmail = (e) => {
-    //     setUser({ ...user, email: e.target.value })
-    // }
-    // const handlePass = (e) => {
-    //     setUser({ ...user, password: e.target.value })
-    // }
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const result = await signInWithEmailAndPassword(auth, user.email, user.password)
-            if (result) {
-                openPopup('User logged in Successfully')
+            const dbref = doc(db, 'students', user.roll)
+            const student = await getDoc(dbref)
+            if (student.exists()) {
+                console.log(student)
+                openPopup('Student already exists')
+                return
             }
+            const result = await setDoc(dbref, { ...user })
+            openPopup('Student added successfully')
 
         }
         catch (err) {
@@ -84,7 +89,10 @@ const Add = () => {
                     <Box sx={{ display: 'flex', flex: 1, gap: 2 }}>
                         <FormControl fullWidth>
                             <InputLabel id="demo-simple-select-label">Class</InputLabel>
-                            <Select labelId="demo-simple-select-label" label='Class'>
+                            <Select labelId="demo-simple-select-label" label='Class'
+                                value={user.class}
+                                onChange={(e) => setUser({ ...user, class: e.target.value })}
+                            >
                                 <MenuItem value='1'>1</MenuItem>
                                 <MenuItem value='2'>2</MenuItem>
                                 <MenuItem value='3'>3</MenuItem>
@@ -100,7 +108,10 @@ const Add = () => {
                         </FormControl>
                         <FormControl fullWidth>
                             <InputLabel id="demo-simple-select-label">Division</InputLabel>
-                            <Select labelId="demo-simple-select-label" label='Division'>
+                            <Select labelId="demo-simple-select-label" label='Division'
+                                value={user.div}
+                                onChange={(e) => setUser({ ...user, div: e.target.value })}
+                            >
                                 <MenuItem value='A'>A</MenuItem>
                                 <MenuItem value='B'>B</MenuItem>
                                 <MenuItem value='C'>C</MenuItem>
