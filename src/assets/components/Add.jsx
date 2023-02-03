@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, Input, InputLabel, MenuItem, Select, Snackbar, TextField } from '@mui/material'
+import { Box, Button, CircularProgress, FormControl, Input, InputLabel, MenuItem, Select, Snackbar, TextField } from '@mui/material'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react'
@@ -10,6 +10,8 @@ const DB_URL = 'https://resolve-ai-assign-default-rtdb.asia-southeast1.firebased
 const Add = () => {
 
     // const auth = getAuth(app);
+
+    const [loading, setLoading] = useState(false)
 
 
 
@@ -35,22 +37,26 @@ const Add = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setLoading(true)
         try {
-            const dbref = doc(db, 'students', user.roll)
+            const dbref = doc(db, 'students/', user.roll)
             const student = await getDoc(dbref)
             if (student.exists()) {
                 console.log(student)
                 openPopup('Student already exists')
+                setLoading(false)
                 return
             }
             const result = await setDoc(dbref, { ...user })
             openPopup('Student added successfully')
+            setLoading(false)
 
         }
         catch (err) {
             openPopup(err.message)
-
+            setLoading(false)
         }
+
     }
 
     const openPopup = (msg) => {
@@ -172,7 +178,13 @@ const Add = () => {
 
                         </Box>
                     </Box>
-                    <Button type='submit' onClick={handleSubmit}>Add</Button>
+                    <Button type='submit' variant='outlined' onClick={handleSubmit}
+                        sx={{
+                            width: '30%'
+                        }}
+                    >
+                        Add {loading ? <CircularProgress size='1rem' /> : null}
+                    </Button>
 
                 </Box>
             </form>
@@ -180,6 +192,7 @@ const Add = () => {
                 open={popup.open}
                 onClose={closePopup}
                 message={popup.message}
+                autoHideDuration={2000}
             />
         </>
     )
